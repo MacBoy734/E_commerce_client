@@ -12,6 +12,10 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      flexGrow: {
+        2: '2',
+        5: '5', 
+      },
     },
   },
   plugins: [],
