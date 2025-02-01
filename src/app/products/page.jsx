@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { addToCart } from "../../slices/cartSlice"
+import Link from "next/link";
 import { useDispatch } from "react-redux";
 import Spinner from '../../components/Spinner'
 
@@ -34,14 +35,14 @@ const ProductsPage = () => {
   }, []);
 
   const handleAddToCart = (id, name, price, totalQuantity, images) => {
-     const item = {
+    const item = {
       id,
-      name, 
+      name,
       price,
       totalQuantity,
       quantity: 1,
       images
-     }
+    }
     return dispatch(addToCart(item))
   }
 
@@ -59,9 +60,10 @@ const ProductsPage = () => {
         ) : products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 px-6">
             {products.map((product) => (
-              <div
+              <Link
+                href={`/products/${product._id}`}
                 key={product._id}
-                className="border p-4 rounded-lg shadow-lg"
+                className="border p-4 rounded-lg shadow-lg block"
               >
                 <div className="w-full h-48 bg-gray-300 bg-cover bg-center">
                   {product.images && product.images[0] && product.images[0].url ? (
@@ -78,10 +80,27 @@ const ProductsPage = () => {
                 </div>
                 <h3 className="text-xl font-semibold mt-4">{product.name}</h3>
                 <p className="text-gray-500">${product.price}</p>
-                <small className="text-red-400 block mt-3">only {product.quantity} remaining!</small>
-                <button className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg" onClick={() => handleAddToCart(product._id, product.name, product.price, product.quantity, product.images)}>Add to Cart</button>
-              </div>
+                <small className="text-red-400 block mt-3">
+                  only {product.quantity} remaining!
+                </small>
+                <button
+                  className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg"
+                  onClick={(e) => {
+                    e.preventDefault(); 
+                    handleAddToCart(
+                      product._id,
+                      product.name,
+                      product.price,
+                      product.quantity,
+                      product.images
+                    );
+                  }}
+                >
+                  Add to Cart
+                </button>
+              </Link>
             ))}
+
           </div>
         ) : (
           <div className="mt-10">

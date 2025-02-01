@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 import { MoonLoader } from 'react-spinners'
 
 const ManageProducts = () => {
@@ -12,15 +13,16 @@ const ManageProducts = () => {
     const [showAddProduct, setShowAddProduct] = useState(false);
     const [isAddingProduct, setIsAddingProduct] = useState(false)
     const [isProductsLoading, setIsProductsLoading] = useState(true)
-
+    
     const [productName, setProductName] = useState("");
     const [productDescription, setProductDescription] = useState("");
     const [productCategory, setProductCategory] = useState("electronics"); // Default category
     const [productPrice, setProductPrice] = useState(0);
     const [productQuantity, setProductQuantity] = useState(0);
-
+    
     const categories = ["electronics", "clothing", "home appliances", "books", "toys"];
-
+    
+    
     const handleFileChange = (event) => {
         const files = event.target.files;
         if (files) {
@@ -129,6 +131,12 @@ const ManageProducts = () => {
         }
     };
 
+    
+    const handleEdit = (id) => {
+        console.log(id)
+        // router.push(`/products/edit/${id}`)
+    }
+
     // Handle delete product
     const handleDeleteProduct = async (id) => {
         if (confirm("delete this product? it will be deleted permanently and this cant be undone!")) {
@@ -191,16 +199,10 @@ const ManageProducts = () => {
                                         <td className="border border-gray-300 px-4 py-2">{product.quantity}</td>
                                         <td className="border border-gray-300 px-4 py-2">
                                             <button
-                                                onClick={() => setEditProduct(product)}
+                                                onClick={() => handleEdit(product._id)}
                                                 className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 mr-2"
                                             >
                                                 Edit
-                                            </button>
-                                            <button
-                                                onClick={() => handleToggleFeatured(product._id)}
-                                                className={`bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600`}
-                                            >
-                                                {product.isFeatured ? 'unfeature' : 'feature'}
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteProduct(product._id)}

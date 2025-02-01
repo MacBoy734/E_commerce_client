@@ -22,16 +22,16 @@ const geistMono = Geist_Mono({
 export default function RootLayout({ children }) {
   return (
     <Provider store={store}>
-        <html lang="en">
-          <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-          >
-            <Navbar />
-            {children}
-            <Footer />
-            <ToastContainer />
-          </body>
-        </html>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
+        >
+          <Navbar />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+          <ToastContainer />
+        </body>
+      </html>
     </Provider>
   );
 }
