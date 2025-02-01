@@ -3,11 +3,12 @@ import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { addToCart } from "../../slices/cartSlice"
+import { Suspense } from "react"
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { PulseLoader } from 'react-spinners'
 
-export default function SearchPage() {
+function SearchPageContent() {
     const searchParams = useSearchParams();
     const query = searchParams.get("q") || "";
     const [products, setProducts] = useState([]);
@@ -109,5 +110,13 @@ export default function SearchPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function SearchPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center min-h-screen">Loading search results...</div>}>
+            <SearchPageContent />
+        </Suspense>
     );
 }
