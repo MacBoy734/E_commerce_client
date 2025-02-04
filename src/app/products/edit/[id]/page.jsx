@@ -10,7 +10,6 @@ export default function EditProduct() {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isSavingProduct, setIsSavingProduct] = useState(false);
     const [offers, setOffers] = useState([])
-    const [selectedOffer, setSelectedOffer] = useState("")
 
     const categories = ["electronics", "clothing", "home appliances", "books", "toys"];
 
@@ -26,7 +25,7 @@ export default function EditProduct() {
                 }
                 setProduct(data);
             } catch (err) {
-                toast.error("Product not found");
+                toast.error(err.message);
                 router.push("/products");
             }
         }
@@ -47,21 +46,6 @@ export default function EditProduct() {
         fetchProduct()
     }, [id]);
 
-    const handleFileChange = (event) => {
-        const files = event.target.files;
-        if (files) {
-            setSelectedFiles([...selectedFiles, ...Array.from(files)]);
-        }
-    };
-
-    const handleRemoveFile = (index) => {
-        setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-    };
-
-    const handleChange = (e) => {
-        setProduct({ ...product, [e.target.name]: e.target.value });
-    };
-
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -79,7 +63,6 @@ export default function EditProduct() {
         formData.append("category", product.category.trim());
         formData.append("isFeatured", product.isFeatured || false)
         formData.append("offers", product.offers)
-        selectedFiles.forEach((file) => formData.append("images", file));
 
         try {
             setIsSavingProduct(true);
@@ -201,35 +184,6 @@ export default function EditProduct() {
                         onChange={(e) => setProduct({ ...product, isFeatured: e.target.checked })}
                     />
                 </div>
-                <div>
-                    <label className="block text-sm font-medium">Add Product Images</label>
-                    <input
-                        type="file"
-                        className="w-full mt-1 p-2 border rounded"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileChange}
-                    />
-                </div>
-                {selectedFiles.length > 0 && (
-                    <div className="mt-4">
-                        <h3 className="font-medium mb-2">Selected Images:</h3>
-                        <ul>
-                            {selectedFiles.map((file, index) => (
-                                <li key={index} className="flex justify-between items-center">
-                                    <span>{file.name}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleRemoveFile(index)}
-                                        className="text-red-500 text-sm underline"
-                                    >
-                                        Remove
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
                 <button
                     type="submit"
                     className={`w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 ${isSavingProduct && 'opacity-50'}`}

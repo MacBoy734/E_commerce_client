@@ -9,6 +9,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [products, setProducts] = useState([]);
+  const [offers, setOffers] = useState([])
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -32,21 +33,38 @@ export default function Home() {
         setIsLoading(false); // Stop loading
       }
     };
+    const fetchOffers = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/offers`, { credentials: 'include' })
+        if (!response.ok) {
+          const { error } = await response.json()
+          return toast.error(error)
+        }
+        const data = await response.json()
+        setOffers(data)
+      } catch (error) {
+        toast.error(error.message)
+      } finally {
+        setIsLoading(false)
+      }
+    }
 
     fetchFeaturedProducts();
+    fetchOffers()
   }, [])
 
-   const handleAddToCart = (id, name, price, totalQuantity, images) => {
-      const item = {
-       id,
-       name, 
-       price,
-       totalQuantity,
-       quantity: 1,
-       images
-      }
-     return dispatch(addToCart(item))
-   }
+  const handleAddToCart = (id, name, price, totalQuantity, images) => {
+    const item = {
+      id,
+      name,
+      price,
+      totalQuantity,
+      quantity: 1,
+      images
+    }
+    return dispatch(addToCart(item))
+  }
 
   return (
     <div>
@@ -63,7 +81,7 @@ export default function Home() {
       <section className="py-12 min-h-[50vh]">
         <h2 className="text-3xl font-semibold text-center">Featured Products</h2>
         {isLoading ? (
-          <Spinner loading={isLoading} message="wait a second..."/>
+          <Spinner loading={isLoading} message="wait a second..." />
         ) : error ? (
           <p className="text-center text-xl text-red-500">{error}</p>
         ) : products.length > 0 ? (
@@ -72,7 +90,7 @@ export default function Home() {
               <div key={product._id} className="border p-4 rounded-lg shadow-lg">
                 <h4 className='text-emerald-500 mb-2 font-bold'>Featured!</h4>
                 <div className="w-full h-48 bg-gray-300">
-                  <img src={product.images[0].url} alt={product.name} className=''/>
+                  <img src={product.images[0].url} alt={product.name} className='' />
                 </div>
                 <h3 className="mt-4 text-xl font-semibold">{product.name}</h3>
                 <p className="text-gray-500">${product.price}</p>
@@ -91,24 +109,22 @@ export default function Home() {
       <section className="bg-gray-200 py-12 text-center text-black">
         <h2 className="text-3xl font-semibold">Special Offers</h2>
         <p className="mt-4 text-xl">Don't miss out on these limited-time deals!</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 px-6">
-          <div className="border p-4 rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold">Offer 1</h3>
-            <p className="">Save 20% on all items</p>
-            <Link href="/offers" className="mt-4 inline-block bg-yellow-500 text-black py-2 px-6 rounded-lg">
-              View Offers
-            </Link>
-          </div>
-
-          <div className="border p-4 rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold">Offer 2</h3>
-            <p className="">Buy 1 get 1 free</p>
-            <Link href="/offers" className="mt-4 inline-block bg-yellow-500 text-black py-2 px-6 rounded-lg">
-              View Offers
-            </Link>
-          </div>
-
-          {/* Add more offers */}
+        <div className="">
+          {
+            isLoading ? (
+              <Spinner loading={isLoading} message='loading offers..' color='black'/>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 px-6">
+                {offers.map((offer) => (
+                  <div key={offer._id} className="border p-4 rounded-lg shadow-lg">
+                    <h4 className='text-emerald-500 mb-2 font-bold'>{offer.title}</h4>
+                    <h3 className="mt-4 text-xl font-semibold">Get up to {offer.discountPercentage}% discount!</h3>
+                    <p className="text-gray-500">This offer ends on {new Date(offer.endDate).toLocaleString()}.</p>
+                  </div>
+                ))}
+              </div>
+            )
+          }
         </div>
       </section>
     </div>

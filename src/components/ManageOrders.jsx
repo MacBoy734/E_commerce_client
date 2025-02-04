@@ -1,88 +1,89 @@
-import React from "react";
+"use client"
+import { React, useEffect, useState } from "react";
+import { HashLoader, PulseLoader } from "react-spinners"
+
 
 const ManageOrders = () => {
+  const [orders, setOrders] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/orders`, {credentials: 'include'});
+        if (!response.ok) return toast.error('something went wrong')
+        const data = await response.json();
+        setOrders(data);
+      } catch (error) {
+        toast.error(error.message);
+      } finally {
+        setIsLoading(false)
+      }
+    };
+    fetchOrders();
+  }, []);
+
+  const handleDeleteOrder = () => {
+    console.log('deleting...')
+  }
+
   return (
-    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 space-y-6 bg-gray-50 min-h-screen text-black">
       <h1 className="text-3xl font-bold text-gray-800">Manage Orders</h1>
-      
-      {/* Search and Filter */}
-      <div className="flex flex-wrap items-center gap-4">
-        <input
-          type="text"
-          placeholder="Search orders by ID or customer..."
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-        />
-        <select
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-        >
-          <option value="all">All Statuses</option>
-          <option value="pending">Pending</option>
-          <option value="processing">Processing</option>
-          <option value="shipped">Shipped</option>
-          <option value="delivered">Delivered</option>
-        </select>
-        <button className="px-6 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">
-          Search
-        </button>
-      </div>
 
-      {/* Orders Table */}
-      <div className="overflow-x-auto bg-white shadow rounded-lg">
-        <table className="w-full text-left table-auto border-collapse">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-4 py-3 text-sm font-medium text-gray-600">Order ID</th>
-              <th className="px-4 py-3 text-sm font-medium text-gray-600">Customer</th>
-              <th className="px-4 py-3 text-sm font-medium text-gray-600">Date</th>
-              <th className="px-4 py-3 text-sm font-medium text-gray-600">Total</th>
-              <th className="px-4 py-3 text-sm font-medium text-gray-600">Status</th>
-              <th className="px-4 py-3 text-sm font-medium text-gray-600">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[...Array(10)].map((_, index) => (
-              <tr key={index} className="border-b hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm text-gray-700">#ORD00{index + 1}</td>
-                <td className="px-4 py-3 text-sm text-gray-700">Customer {index + 1}</td>
-                <td className="px-4 py-3 text-sm text-gray-700">2025-01-28</td>
-                <td className="px-4 py-3 text-sm text-gray-700">${(index + 1) * 50}.00</td>
-                <td className="px-4 py-3 text-sm">
-                  <span
-                    className={`px-2 py-1 rounded-lg text-white text-xs ${
-                      index % 2 === 0
-                        ? "bg-yellow-500"
-                        : "bg-green-500"
-                    }`}
-                  >
-                    {index % 2 === 0 ? "Pending" : "Delivered"}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-sm space-x-2">
-                  <button className="px-3 py-1 text-xs text-white bg-blue-500 rounded-lg hover:bg-blue-600">
-                    View
-                  </button>
-                  <button className="px-3 py-1 text-xs text-white bg-red-500 rounded-lg hover:bg-red-600">
-                    Cancel
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between pt-4">
-        <span className="text-sm text-gray-600">Showing 1-10 of 50 orders</span>
-        <div className="flex items-center space-x-2">
-          <button className="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">
-            Previous
-          </button>
-          <button className="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">
-            Next
-          </button>
-        </div>
-      </div>
+      {
+        isLoading ? (
+          <div className={`flex flex-col items-center justify-center min-h-[60vh]`}>
+            <PulseLoader color="#36d7b7" size={30} margin={5} />
+            <p className="mt-4 text-lg font-medium text-black">Loading Orders...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border border-gray-300 rounded-md">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="p-3 text-left">Amount</th>
+                  <th className="p-3 text-left">Date</th>
+                  <th className="p-3 text-left">Payment Status</th>
+                  <th className="p-3 text-left">Order Status</th>
+                  <th className="p-3 text-left">actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.length > 0 ? (
+                  orders.map((order) => (
+                    <tr key={order.totalAmount} className="border-b">
+                      <td className="p-3">${order.totalAmount}</td>
+                      <td className="p-3">{new Date(order.createdAt).toLocaleString()}</td>
+                      <td className="p-3">{order.paymentStatus}</td>
+                      <td className="p-3">{order.orderStatus}</td>
+                      <td className="p-3 flex space-x-2">
+                        <button
+                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                          onClick={() => handleDeleteOrder(order._id)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td className="p-3 text-center text-gray-500" colSpan="4">
+                      No orders found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )
+      }
     </div>
   );
 };

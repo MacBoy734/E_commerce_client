@@ -1,11 +1,11 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { MoonLoader } from 'react-spinners'
 
 const ManageProducts = () => {
+    const router = useRouter()
     const [products, setProducts] = useState([]);
     const [newProduct, setNewProduct] = useState();
     const [editProduct, setEditProduct] = useState(null);
@@ -134,7 +134,7 @@ const ManageProducts = () => {
     
     const handleEdit = (id) => {
         console.log(id)
-        // router.push(`/products/edit/${id}`)
+        router.push(`/products/edit/${id}`)
     }
 
     // Handle delete product

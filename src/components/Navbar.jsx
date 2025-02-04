@@ -170,10 +170,28 @@ export default function Navbar() {
       {/* Mobile Menu (Only visible when menuOpen is true) */}
       {menuOpen && (
         <div className="fit:hidden flex flex-col items-center space-y-4 mt-4 bg-blue-700 p-4 rounded-md shadow-lg">
-          <Link href="/auth/profile" className="text-lg" onClick={() => setMenuOpen(false)}>Profile</Link>
-          <Link href="/users/orders" className="text-lg" onClick={() => setMenuOpen(false)}>Orders</Link>
-          <Link href="/cart" className="text-lg" onClick={() => setMenuOpen(false)}>Cart ({cartItems.length})</Link>
-          <button className="text-lg" onClick={handleLogOut}>Logout</button>
+         
+          <div>
+                {isAuthenticated ? (
+                  <ul className="py-2">
+                    <li className="px-4 py-2"> <Link href="/auth/profile" onClick={() => setMenuOpen(false)}>Profile</Link></li>
+                    <li className="px-4 py-2"><Link href="/users/orders" onClick={() => setMenuOpen(false)}>Orders</Link></li>
+                    {
+                      user.isAdmin && (
+                        <li className="px-4 py-2"><Link href="/admin">dashboard</Link></li>
+                      )
+                    }
+                    <li className="px-4 py-2"><button onClick={handleLogOut}>Logout</button></li>
+                  </ul>
+                ) : (
+                  <ul className="py-2">
+                    <li className="px-4 py-2"><Link href="/auth/login">Login</Link></li>
+                    <li className="px-4 py-2"><Link href="/auth/register">Register</Link></li>
+                    <li className="px-4 py-2"><Link href="/cart" onClick={() => setMenuOpen(false)}>Cart ({cartItems.length})</Link></li>
+                  </ul>
+                )}
+
+              </div>
         </div>
       )}
     </nav>
