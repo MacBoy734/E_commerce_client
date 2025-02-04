@@ -2,26 +2,32 @@
 "use client"
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux"
+import { useRouter } from "next/navigation";
 import Spinner from "../../components/Spinner"
 import { toast } from "react-toastify";
 
 const CheckoutPage = () => {
   const cart = useSelector((state) => state.cart)
   const { user } = useSelector((state) => state.auth)
+  const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     address: "",
     city: "",
     postalCode: "",
-    paymentMethod: "Credit Card",
-    userId: user._id,
-    items: cart.cartItems
+    paymentMethod: "Credit Card"
   });
   const [isHydrated, setIsHydrated] = useState(false)
   useEffect(() => {
     setIsHydrated(true)
-  }, [])
+    setFormData((prevData) => ({
+      ...prevData,
+      userId: user?._id || "",
+      items: cart?.cartItems || [],
+    }))
+  }, [cart.cartItems, user])
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -33,9 +39,10 @@ const CheckoutPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsSubmitting(true)
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/checkout`, {
         method: "POST",
-        headers: {"Content-Type" : "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
         credentials: 'include'
       })
@@ -43,11 +50,20 @@ const CheckoutPage = () => {
         const { error } = await response.json()
         toast.error(error)
       }
-      const data = await response.json()
-      console.log(data)
+      setFormData({
+        name: "",
+        email: "",
+        address: "",
+        city: "",
+        postalCode: "",
+        paymentMethod: "Credit Card"
+      })
+      router.push('/')
       toast.success('order completed!')
     } catch (error) {
       toast.error(error.message)
+    } finally {
+      setIsSubmitting(false)
     }
   };
 
@@ -198,9 +214,10 @@ const CheckoutPage = () => {
           <div className="text-center">
             <button
               type="submit"
-              className="w-full py-3 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={isSubmitting}
+              className={`w-full py-3 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 ${isSubmitting && 'opacity-50'}`}
             >
-              Complete Order
+              {isSubmitting ? 'Saving order...' : 'Complete Order'}
             </button>
           </div>
         </form>
