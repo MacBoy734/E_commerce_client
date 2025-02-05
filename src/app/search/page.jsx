@@ -58,7 +58,7 @@ function SearchPageContent() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
+        <div className="max-w-4xl mx-auto p-6 bg-black text-white">
             <h1 className="text-2xl font-bold">Search Results for "{query}"</h1>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 {products.length > 0 ? (
@@ -82,7 +82,7 @@ function SearchPageContent() {
                                 )}
                             </div>
                             <h3 className="text-xl font-semibold mt-4">{product.name}</h3>
-                            <p className="text-gray-500">${product.price}</p>
+                            <p className="text-gray-300">${product.price}</p>
                             <small className="text-red-400 block mt-3">
                                 only {product.quantity} remaining!
                             </small>

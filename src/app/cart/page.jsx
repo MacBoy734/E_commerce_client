@@ -21,7 +21,7 @@ const CartPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 min-h-[80vh]">
+    <div className="container mx-auto p-6 min-h-[80vh] bg-black text-white">
       <h1 className="text-3xl font-bold mb-6">Shopping Cart</h1>
 
       {cart.cartItems.length === 0 ? (
@@ -37,7 +37,7 @@ const CartPage = () => {
             {cart.cartItems.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between bg-white shadow-md rounded-lg p-4"
+                className="flex items-center justify-between bg-white shadow-md rounded-lg p-4 flex-col sm:flex-row gap-3 sm:gap-1"
               >
                 <div className="flex items-center gap-4">
                   <img

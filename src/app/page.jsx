@@ -78,7 +78,7 @@ export default function Home() {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-12 min-h-[50vh] bg-black">
+      <section className="py-12 min-h-[50vh] bg-black text-white">
         <h2 className="text-3xl font-semibold text-center">Featured Products</h2>
         {isLoading ? (
           <Spinner loading={isLoading} message="wait a second..." />
@@ -93,7 +93,7 @@ export default function Home() {
                   <img src={product.images[0].url} alt={product.name} className='' />
                 </div>
                 <h3 className="mt-4 text-xl font-semibold">{product.name}</h3>
-                <p className="text-gray-500">${product.price}</p>
+                <p className="text-gray-300">${product.price}</p>
                 <small className="text-red-400 block mt-3">
                   only {product.quantity} remaining!
                 </small>

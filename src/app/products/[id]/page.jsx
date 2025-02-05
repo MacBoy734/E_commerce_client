@@ -15,8 +15,8 @@ const ProductPage = async ({ params }) => {
   const product = await res.json();
 
   return (
-    <div className="bg-black">
-      <h1 className="text-3xl font-bold mb-6">{product.name}</h1>
+    <div className="bg-black text-white">
+      <h1 className="text-3xl font-bold mb-6 pl-3">{product.name}</h1>
       <div className="">
         {/* Product Images */}
         <div className="m-5">
