@@ -78,7 +78,7 @@ export default function Home() {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-12 min-h-[50vh]">
+      <section className="py-12 min-h-[50vh] bg-black">
         <h2 className="text-3xl font-semibold text-center">Featured Products</h2>
         {isLoading ? (
           <Spinner loading={isLoading} message="wait a second..." />
@@ -87,15 +87,32 @@ export default function Home() {
         ) : products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 px-6">
             {products.map((product) => (
-              <div key={product._id} className="border p-4 rounded-lg shadow-lg">
+              <Link key={product._id} href={`/products/${product._id}`} className="border p-4 rounded-lg shadow-lg">
                 <h4 className='text-emerald-500 mb-2 font-bold'>Featured!</h4>
                 <div className="w-full h-48 bg-gray-300">
                   <img src={product.images[0].url} alt={product.name} className='' />
                 </div>
                 <h3 className="mt-4 text-xl font-semibold">{product.name}</h3>
                 <p className="text-gray-500">${product.price}</p>
-                <button className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg" onClick={() => handleAddToCart(product._id, product.name, product.price, product.quantity, product.images)}>Add to Cart</button>
-              </div>
+                <small className="text-red-400 block mt-3">
+                  only {product.quantity} remaining!
+                </small>
+                <button
+                  className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleAddToCart(
+                      product._id,
+                      product.name,
+                      product.price,
+                      product.quantity,
+                      product.images
+                    );
+                  }}
+                >
+                  Add to Cart
+                </button>
+              </Link>
             ))}
           </div>
         ) : (
@@ -112,8 +129,8 @@ export default function Home() {
         <div className="">
           {
             isLoading ? (
-              <Spinner loading={isLoading} message='loading offers..' color='black'/>
-            ) : (
+              <Spinner loading={isLoading} message='loading offers..' color='black' />
+            ) : offers.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 px-6">
                 {offers.map((offer) => (
                   <div key={offer._id} className="border p-4 rounded-lg shadow-lg">
@@ -122,6 +139,10 @@ export default function Home() {
                     <p className="text-gray-500">This offer ends on {new Date(offer.endDate).toLocaleString()}.</p>
                   </div>
                 ))}
+              </div>
+            ) : (
+              <div className='mt-10'>
+                <h2 className='text-xl font-bold text-center text-red-500'>There are no offers at this time!</h2>
               </div>
             )
           }

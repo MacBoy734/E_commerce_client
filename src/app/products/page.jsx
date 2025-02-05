@@ -53,7 +53,7 @@ const ProductsPage = () => {
         <h2 className="text-3xl font-semibold text-center">All Products</h2>
         {isLoading ? (
           <div>
-            <Spinner loading={isLoading} message="Loading Products..." />
+            <Spinner loading={isLoading} message="Loading Products..." color="black"/>
           </div>
         ) : error ? (
           <p className="text-center text-xl text-red-500">{error}</p>
