@@ -89,7 +89,7 @@ export default function Navbar() {
               <div className="absolute left-0 mt-2 bg-white text-black shadow-md rounded-md w-40 cursor-pointer">
                 {isAuthenticated ? (
                   <ul className="py-2">
-                    <li className="px-4 py-2 hover:bg-gray-200"><Link href="/auth/profile">Profile</Link></li>
+                    <li className="px-4 py-2 hover:bg-gray-200"><Link href="/users/profile">Profile</Link></li>
                     <li className="px-4 py-2 hover:bg-gray-200"><Link href="/users/orders">Orders</Link></li>
                     {
                       user.isAdmin && (
@@ -118,8 +118,8 @@ export default function Navbar() {
             {helpDropdown && (
               <div className="absolute left-0 mt-2 bg-white text-black shadow-md rounded-md w-40 cursor-pointer">
                 <ul className="py-2">
-                  <li className="px-4 py-2 hover:bg-gray-200">FAQ</li>
-                  <li className="px-4 py-2 hover:bg-gray-200">Contact Support</li>
+                  <li className="px-4 py-2 hover:bg-gray-200"><Link href="/help/FAQS">FAQS</Link></li>
+                  <li className="px-4 py-2 hover:bg-gray-200"><Link href="/help/contactsupport">Contact Support</Link></li>
                 </ul>
               </div>
             )}
@@ -128,7 +128,7 @@ export default function Navbar() {
           <div>
             <Link href="/cart" className="flex items-center space-x-1">
               <GiShoppingCart className="size-6" />
-              <h4 className="text-md">Cart <sup className={`text-red-600 text-lg font-normal ${cartItems <= 0 && 'hidden'}`}>{cartItems.length}</sup></h4>
+              <h4 className="text-md">Cart <sup className={`text-red-600 text-lg font-normal ${!cartItems?.length && 'hidden'}`}>{cartItems?.length || 0}</sup></h4>
             </Link>
           </div>
         </div>
@@ -174,21 +174,21 @@ export default function Navbar() {
           <div>
             {isAuthenticated ? (
               <ul className="py-2">
-                <li className="px-4 py-2"> <Link href="/auth/profile" onClick={() => setMenuOpen(false)}>Profile</Link></li>
+                <li className="px-4 py-2"> <Link href="/users/profile" onClick={() => setMenuOpen(false)}>Profile</Link></li>
                 <li className="px-4 py-2"><Link href="/users/orders" onClick={() => setMenuOpen(false)}>Orders</Link></li>
                 {
                   user.isAdmin && (
                     <li className="px-4 py-2"><Link href="/admin">dashboard</Link></li>
                   )
                 }
-                <li className="px-4 py-2"><Link href="/cart" onClick={() => setMenuOpen(false)}>Cart ({cartItems.length})</Link></li>
+                <li className="px-4 py-2"><Link href="/cart" onClick={() => setMenuOpen(false)}>Cart ({cartItems?.length || 0})</Link></li>
                 <li className="px-4 py-2"><button onClick={handleLogOut}>Logout</button></li>
               </ul>
             ) : (
               <ul className="py-2">
                 <li className="px-4 py-2"><Link href="/auth/login">Login</Link></li>
                 <li className="px-4 py-2"><Link href="/auth/register">Register</Link></li>
-                <li className="px-4 py-2"><Link href="/cart" onClick={() => setMenuOpen(false)}>Cart ({cartItems.length})</Link></li>
+                <li className="px-4 py-2"><Link href="/cart" onClick={() => setMenuOpen(false)}>Cart ({cartItems?.length || 0})</Link></li>
               </ul>
             )}
 

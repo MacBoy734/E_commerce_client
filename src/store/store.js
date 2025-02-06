@@ -34,7 +34,7 @@ const store = configureStore({
     auth: authReducer,
     cart: cartReducer,
   },
-  preloadedState, // Use safely loaded preloadedState
+  preloadedState, 
 });
 
 if (typeof window !== "undefined") {

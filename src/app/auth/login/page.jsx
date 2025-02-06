@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { login } from '../../../slices/authSlice'
 import { toast } from 'react-toastify'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation' // Use this from 'next/navigation' for client-side routing
+import { useRouter } from 'next/navigation'
 
 const Login = () => {
   const { user, isAuthenticated, status, error } = useSelector((state) => state.auth)
@@ -97,13 +97,13 @@ const Login = () => {
           {sending ? 'Logging in...' : 'Login'}
         </button>
 
-        <p className="mt-5 font-roboto">
+        <p className="mt-5 font-roboto text-black">
           Don't have an account? <Link href="/auth/register" className="text-blue-800">Register</Link>
         </p>
         {error === 'incorrect password!' && (
           <h2 className="text-red-800 mb-3">
             Forgot password?{' '}
-            <Link href="/forgotpassword" className="text-blue-800 underline font-bold">
+            <Link href="/auth/forgotpassword" className="text-blue-800 underline font-bold">
               Reset
             </Link>
           </h2>

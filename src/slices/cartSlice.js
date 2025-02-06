@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { toast } from 'react-toastify'
 
 const initialState = {
   cartItems: [],
@@ -15,12 +16,11 @@ const cartSlice = createSlice({
       const existingItem = state.cartItems.find(cartItem => cartItem.id === item.id)
 
       if (existingItem) {
-        existingItem.quantity += item.quantity
-        existingItem.totalPrice += item.price * item.quantity
-        alert('updated quantity!')
+        toast.error('item already in cart')
+        return
       } else {
         state.cartItems.push(item)
-        alert('added to cart!')
+        toast.success('added to cart!')
       }
 
       state.totalQuantity += item.quantity
@@ -45,10 +45,14 @@ const cartSlice = createSlice({
       const item = state.cartItems.find(cartItem => cartItem.id === itemId)
 
       if (item) {
-        if(item.quantity > item.totalQuantity) return alert('item out of stock!')
-        item.quantity++
-        state.totalQuantity++
-        state.totalPrice += item.price
+        if(item.quantity >= item.totalQuantity) {
+          toast.error('item out of stock!')
+          return
+        }else{
+          item.quantity++
+          state.totalQuantity++
+          state.totalPrice += item.price
+        }
       }
     },
 
@@ -57,7 +61,7 @@ const cartSlice = createSlice({
       const item = state.cartItems.find(cartItem => cartItem.id === itemId)
 
       if (item) {
-        if(item.quantity == 0) return
+        if(item.quantity == 1) return
         item.quantity--
         state.totalQuantity--
         state.totalPrice -= item.price

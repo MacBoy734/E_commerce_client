@@ -1,0 +1,84 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux"
+import Spinner from '../../../components/Spinner'
+import toast from 'react-toastify'
+
+export default function MyOrdersPage() {
+  const { user } = useSelector((state) => state.auth)
+  const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/${user._id}/orders`, { credentials: 'include' })
+        if (!res.ok) {
+          const { error } = await res.json()
+          return console.error(error)
+        }
+        const data = await res.json()
+        setOrders(data)
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchOrders()
+  }, [user])
+
+  return (
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <h1 className="text-2xl font-bold mb-6 text-gray-700">My Orders</h1>
+
+      {
+        isLoading ? <Spinner loading={isLoading} message="Loading Orders" color="black" /> : orders.length > 0 ? (
+          <div className="space-y-6">
+            {orders.map((order) => (
+              <div
+                key={order._id}
+                className="border rounded-lg p-4 bg-white shadow-md"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <h2 className="font-semibold text-lg">Order #{order._id}</h2>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm ${order.OrderStatus === "Delivered"
+                        ? "bg-green-100 text-green-600"
+                        : "bg-yellow-100 text-yellow-600"
+                      }`}
+                  >
+                    {order.OrderStatus}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-500 mb-2">
+                  Placed on: {order.createdAt}
+                </p>
+                <ul className="space-y-1 mb-2">
+                  {order.items.map((item, index) => (
+                    <li
+                      key={index}
+                      className="text-sm text-gray-700 flex justify-between"
+                    >
+                      <span>{item.name}</span>
+                      <span>x{item.quantity}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-800">
+                    Total: {order.totalAmount}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center text-gray-500">
+            <p>No orders found.</p>
+          </div>
+        )
+      }
+    </div>
+  );
+}

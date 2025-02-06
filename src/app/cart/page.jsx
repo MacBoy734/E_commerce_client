@@ -1,5 +1,4 @@
 "use client"
-
 import { useSelector, useDispatch } from "react-redux"
 import { useEffect, useState } from "react"
 import {removeFromCart, incrementQuantity, decrementQuantity } from "../../slices/cartSlice"
@@ -12,6 +11,7 @@ const CartPage = () => {
   const [isHydrated, setIsHydrated] = useState(false)
   useEffect(() => {
     setIsHydrated(true)
+    console.log(cart)
   }, [])
 
   if(!isHydrated){
@@ -24,7 +24,7 @@ const CartPage = () => {
     <div className="container mx-auto p-6 min-h-[80vh] bg-black text-white">
       <h1 className="text-3xl font-bold mb-6">Shopping Cart</h1>
 
-      {cart.cartItems.length === 0 ? (
+      {isHydrated && cart.cartItems?.length === 0 ? (
         <div className="text-center mt-10">
           <p className="text-lg">Your cart is currently empty.</p>
           <Link href="/products" className="text-blue-600 underline mt-4">
@@ -34,7 +34,7 @@ const CartPage = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="col-span-2 space-y-6 md:row-span-2">
-            {cart.cartItems.map((item) => (
+            {cart.cartItems?.map((item) => (
               <div
                 key={item.id}
                 className="flex items-center justify-between bg-white shadow-md rounded-lg p-4 flex-col sm:flex-row gap-3 sm:gap-1"
@@ -79,7 +79,7 @@ const CartPage = () => {
             <div className="space-y-2 mb-5">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${cart.totalPrice.toFixed(2)}</span>
+                <span>${cart.totalPrice?.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Total Items</span>
