@@ -1,41 +1,40 @@
 "use client"
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useSelector } from 'react-redux';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { useSelector } from 'react-redux'
 
 const ProfilePage = () => {
   const { user, status, isAuthenticated } = useSelector((state) => state.auth)
   const router = useRouter()
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
     username: user?.username || '',
     email: user?.email || '',
     phone: user?.phone || '',
-  });
+  })
 
   useEffect(() => {
     if (status !== "loading" && !isAuthenticated) {
       router.push("/auth/login")
     }
-  }, [user, status, router])
+  }, [status, isAuthenticated, router])
 
   const handleEditToggle = () => {
-    setIsEditing(!isEditing);
-  };
+    setIsEditing(!isEditing)
+  }
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    });
-  };
+    })
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle update profile logic here (e.g., API call to update user info)
-    setIsEditing(false);
-  };
+    e.preventDefault()
+    setIsEditing(false)
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -93,10 +92,10 @@ const ProfilePage = () => {
       ) : (
         <div className="mb-8">
           <h4 className='text-2xl text-center font-semibold my-5 underline'>Profile details</h4>
-          <p className='my-3 text-lg'>Username: {user.username}</p>
-          <p className='my-3 text-lg'>Email: {user.email}</p>
-          <p className='my-3 text-lg'>Phone number: {user.phone}</p>
-          <p className='my-3 text-lg'>Role: {user.isAdmin ? 'Admin' : 'Customer'}</p>
+          <p className='my-3 text-lg'>Username: {user?.username || 'N/A'}</p>
+          <p className='my-3 text-lg'>Email: {user?.email || 'N/A'}</p>
+          <p className='my-3 text-lg'>Phone number: {user?.phone || 'N/A'}</p>
+          <p className='my-3 text-lg'>Role: {user?.isAdmin ? 'Admin' : 'Customer'}</p>
           <button
             onClick={handleEditToggle}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg focus:outline-none hover:bg-blue-700 my-5"
@@ -113,7 +112,7 @@ const ProfilePage = () => {
         
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ProfilePage;
+export default ProfilePage
