@@ -1,8 +1,13 @@
 "use client"
 import React, { useState, useEffect } from 'react';
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux"
+import { logout } from "../slices/authSlice"
 import { toast } from 'react-toastify';
 
 const ManageUsers = () => {
+  const dispatch = useDispatch()
+  const router = useRouter()
   const [users, setUsers] = useState([])
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -15,17 +20,24 @@ const ManageUsers = () => {
       user.email.toLowerCase().includes(search.toLowerCase())
   );
 
-  useEffect(() =>{
+  useEffect(() => {
     const fetchUsers = async () => {
-      try{
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/users`, {credentials: 'include'})
-        if(!response.ok){
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/users`, { credentials: 'include' })
+        if (!response.ok) {
           const { error } = await response.json()
+          if (response.status === 403) {
+            dispatch(logout())
+            router.replace('/auth/login')
+            toast.error(error)
+            return
+          }
           toast.error(error)
+          return
         }
         const data = await response.json()
         setUsers(data)
-      }catch(error){
+      } catch (error) {
         toast.error(error.message)
       }
     }
@@ -33,16 +45,23 @@ const ManageUsers = () => {
     fetchUsers()
   }, [])
 
- 
+
 
   const handleEditUser = async (id) => {
     const user = users.find(user => user._id === id)
-    if(user.isAdmin !== currentEditUser.isAdmin){
-      if(confirm('change this users role?')){
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/${id}/changerole`, {credentials: 'include'})
-        if(!response.ok){
-          const {error} = await response.json()
-          return toast.error(error)
+    if (user.isAdmin !== currentEditUser.isAdmin) {
+      if (confirm('change this users role?')) {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/${id}/changerole`, { credentials: 'include' })
+        if (!response.ok) {
+          const { error } = await response.json()
+          if (response.status === 403) {
+            dispatch(logout())
+            router.replace('/auth/login')
+            toast.error(error)
+            return
+          }
+          toast.error(error)
+          return
         }
         toast.success('users roles changed succesfully')
       }

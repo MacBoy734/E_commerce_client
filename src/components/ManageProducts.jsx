@@ -1,11 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux"
+import { logout } from "../slices/authSlice"
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { MoonLoader } from 'react-spinners'
 
 const ManageProducts = () => {
     const router = useRouter()
+    const dispatch = useDispatch()
     const [products, setProducts] = useState([]);
     const [newProduct, setNewProduct] = useState();
     const [editProduct, setEditProduct] = useState(null);
@@ -13,16 +16,16 @@ const ManageProducts = () => {
     const [showAddProduct, setShowAddProduct] = useState(false);
     const [isAddingProduct, setIsAddingProduct] = useState(false)
     const [isProductsLoading, setIsProductsLoading] = useState(true)
-    
+
     const [productName, setProductName] = useState("");
     const [productDescription, setProductDescription] = useState("");
     const [productCategory, setProductCategory] = useState("electronics"); // Default category
     const [productPrice, setProductPrice] = useState(0);
     const [productQuantity, setProductQuantity] = useState(0);
-    
+
     const categories = ["electronics", "clothing", "home appliances", "books", "toys"];
-    
-    
+
+
     const handleFileChange = (event) => {
         const files = event.target.files;
         if (files) {
@@ -75,20 +78,25 @@ const ManageProducts = () => {
                 body: formData,
                 credentials: "include",
             });
-
-            if (response.ok) {
-                const data = await response.json();
-                toast.success("Product added successfully!");
-                setSelectedFiles([]);
-                setProductName("");
-                setProductDescription("");
-                setProductPrice(0);
-                setProductQuantity(0);
-                setProductCategory("electronics");
-            } else {
-                const { error } = await response.json();
-                toast.error(error);
+            if (!response.ok) {
+                const { error } = await response.json()
+                if (response.status === 403) {
+                    dispatch(logout())
+                    router.replace('/auth/login')
+                    toast.error(error)
+                    return
+                }
+                toast.error(error)
+                return
             }
+            const data = await response.json();
+            toast.success("Product added successfully!");
+            setSelectedFiles([]);
+            setProductName("");
+            setProductDescription("");
+            setProductPrice(0);
+            setProductQuantity(0);
+            setProductCategory("electronics");
         } catch (error) {
             toast.error("An error occurred while uploading product details.");
         } finally {
@@ -123,6 +131,17 @@ const ManageProducts = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(editProduct),
             });
+            if (!response.ok) {
+                const { error } = await response.json()
+                if (response.status === 403) {
+                    dispatch(logout())
+                    router.replace('/auth/login')
+                    toast.error(error)
+                    return
+                }
+                toast.error(error)
+                return
+            }
             const data = await response.json();
             setProducts(products.map((p) => (p.id === editProduct.id ? data : p)));
             setEditProduct(null);
@@ -131,7 +150,7 @@ const ManageProducts = () => {
         }
     };
 
-    
+
     const handleEdit = (id) => {
         console.log(id)
         router.push(`/products/edit/${id}`)
@@ -144,7 +163,14 @@ const ManageProducts = () => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/deleteproduct/${id}`, { method: "DELETE", credentials: 'include' });
                 if (!response.ok) {
                     const { error } = await response.json()
-                    return toast.error(error)
+                    if (response.status === 403) {
+                        dispatch(logout())
+                        router.replace('/auth/login')
+                        toast.error(error)
+                        return
+                    }
+                    toast.error(error)
+                    return
                 }
                 toast.success('product deleted')
                 setProducts(products.filter((p) => p._id !== id));
@@ -154,19 +180,7 @@ const ManageProducts = () => {
         }
     };
 
-    const handleToggleFeatured = async (id) => {
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/togglefeatured/${id}`, { credentials: 'include' })
-            if (!response.ok) {
-                const { error } = await response.json()
-                return toast(error)
-            }
-            fetchProducts()
-            toast.success('product toggled succesfully!')
-        } catch (error) {
-            toast.error(error.message)
-        }
-    }
+
 
     return (
         <div className="container mx-auto p-6 text-black">
@@ -197,7 +211,7 @@ const ManageProducts = () => {
                                         <td className="border border-gray-300 px-4 py-2">{product.name}</td>
                                         <td className="border border-gray-300 px-4 py-2">{product.price}</td>
                                         <td className="border border-gray-300 px-4 py-2">{product.quantity}</td>
-                                        <td className="border border-gray-300 px-4 py-2">
+                                        <td className="border border-gray-300 px-4 py-2 grid grid-cols-[repeat(auto-fit,minmax(50px,1fr))] gap-2">
                                             <button
                                                 onClick={() => handleEdit(product._id)}
                                                 className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 mr-2"

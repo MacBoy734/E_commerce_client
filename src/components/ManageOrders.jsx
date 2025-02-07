@@ -1,17 +1,33 @@
 "use client"
 import { React, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux"
+import { logout } from "../slices/authSlice"
 import { HashLoader, PulseLoader } from "react-spinners"
 
 
 const ManageOrders = () => {
+  const dispatch = useDispatch()
+  const router = useRouter()
   const [orders, setOrders] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/orders`, {credentials: 'include'});
-        if (!response.ok) return toast.error('something went wrong')
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/orders`, { credentials: 'include' });
+        if (!response.ok) {
+          const { error } = await response.json()
+          if (response.status === 403) {
+            dispatch(logout())
+            router.replace('/auth/login')
+            toast.error(error)
+            return
+          }
+          toast.error(error)
+          return
+        }
         const data = await response.json();
         setOrders(data);
       } catch (error) {

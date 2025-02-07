@@ -1,9 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux"
+import { logout } from "../../../../slices/authSlice"
 import { toast } from "react-toastify";
 
 export default function EditProduct() {
+    const { user, status } = useSelector((state) => state.auth)
+    const dispatch = useDispatch()
     const { id } = useParams();
     const router = useRouter();
     const [product, setProduct] = useState(null);
@@ -12,6 +16,12 @@ export default function EditProduct() {
     const [offers, setOffers] = useState([])
 
     const categories = ["electronics", "clothing", "home appliances", "books", "toys"];
+    useEffect(() => {
+        if (status !== "loading" && (!user || !user.isAdmin)) {
+            dispatch(logout())
+            router.push("/unauthorized")
+        }
+    }, [user, status, router])
 
     useEffect(() => {
         if (!id) return;
@@ -21,7 +31,15 @@ export default function EditProduct() {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/${id}`);
                 const data = await res.json();
                 if (!res.ok) {
-                    return toast.error(data.error);
+                    const { error } = await res.json()
+                    if (res.status === 403) {
+                        dispatch(logout())
+                        router.replace('/auth/login')
+                        toast.error(error)
+                        return
+                    }
+                    toast.error(error)
+                    return
                 }
                 setProduct(data);
             } catch (err) {
@@ -34,7 +52,14 @@ export default function EditProduct() {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/offers`);
                 if (!res.ok) {
                     const { error } = await res.json()
-                    return toast.error(error);
+                    if (res.status === 403) {
+                        dispatch(logout())
+                        router.replace('/auth/login')
+                        toast.error(error)
+                        return
+                    }
+                    toast.error(error)
+                    return
                 }
                 const data = await res.json();
                 setOffers(data);
@@ -73,13 +98,20 @@ export default function EditProduct() {
                 credentials: "include",
             });
 
-            if (response.ok) {
-                toast.success("Product updated successfully!");
-                router.push("/products");
-            } else {
-                const { error } = await response.json();
-                toast.error(error);
-            }
+            if (!response.ok) {
+                const { error } = await response.json()
+                if(response.status === 403){
+                  dispatch(logout())
+                  router.replace('/auth/login')
+                  toast.error(error)
+                  return
+                }
+                toast.error(error)
+                return
+              }
+
+            toast.success("Product updated successfully!");
+            router.push("/products")
         } catch (error) {
             toast.error(error.message);
         } finally {
@@ -102,7 +134,7 @@ export default function EditProduct() {
                         placeholder="Enter product name"
                         value={product.name || ""}
                         required
-                        onChange={(e) => setProduct({ ...product, name: e.target.value})}
+                        onChange={(e) => setProduct({ ...product, name: e.target.value })}
                     />
                 </div>
                 <div>

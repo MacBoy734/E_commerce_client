@@ -1,14 +1,16 @@
 // pages/checkout.js
 "use client"
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 import { useRouter } from "next/navigation";
+import { logout } from "../../slices/authSlice"
 import Spinner from "../../components/Spinner"
 import { toast } from "react-toastify";
 
 const CheckoutPage = () => {
   const cart = useSelector((state) => state.cart)
-  const { user } = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
+  const { user, status, isAuthenticated } = useSelector((state) => state.auth)
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
@@ -20,6 +22,12 @@ const CheckoutPage = () => {
     paymentMethod: "Credit Card"
   });
   const [isHydrated, setIsHydrated] = useState(false)
+   useEffect(() => {
+      if (status !== "loading" && !isAuthenticated ) {
+        toast.error('you need to be logged in!')
+        router.push("/auth/login")
+      }
+    }, [user, status, router])
   useEffect(() => {
     setIsHydrated(true)
     setFormData((prevData) => ({
@@ -46,10 +54,17 @@ const CheckoutPage = () => {
         body: JSON.stringify(formData),
         credentials: 'include'
       })
-      if (!response.ok) {
-        const { error } = await response.json()
-        toast.error(error)
-      }
+        if (!response.ok) {
+          const { error } = await response.json()
+          if(response.status === 403){
+            dispatch(logout())
+            router.replace('/auth/login')
+            toast.error(error)
+            return
+          }
+          toast.error(error)
+          return
+        }
       setFormData({
         name: "",
         email: "",

@@ -1,9 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux"
+import { logout } from "../slices/authSlice"
 import { HashLoader, PulseLoader } from "react-spinners";
 
 export default function ManageOffers() {
+  const dispatch = useDispatch()
+  const router = useRouter()
   const [offers, setOffers] = useState([]);
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState("");
@@ -25,7 +30,14 @@ export default function ManageOffers() {
         const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/offers`, { credentials: 'include' })
         if (!response.ok) {
           const { error } = await response.json()
-          return toast.error(error)
+          if(response.status === 403){
+            dispatch(logout())
+            router.replace('/auth/login')
+            toast.error(error)
+            return
+          }
+          toast.error(error)
+          return
         }
         const data = await response.json()
         setOffers(data)
@@ -64,7 +76,14 @@ export default function ManageOffers() {
       })
       if (!response.ok) {
         const { error } = await response.json()
-        return toast.error(error)
+        if(response.status === 403){
+          dispatch(logout())
+          router.replace('/auth/login')
+          toast.error(error)
+          return
+        }
+        toast.error(error)
+        return
       }
       const data = await response.json()
       setOffers(prevState => [...prevState, data])
@@ -111,7 +130,14 @@ export default function ManageOffers() {
       })
       if (!response.ok) {
         const { error } = await response.json()
-        return toast.error(error)
+        if(response.status === 403){
+          dispatch(logout())
+          router.replace('/auth/login')
+          toast.error(error)
+          return
+        }
+        toast.error(error)
+        return
       }
       const data = await response.json()
       setOffers(offers.map((offer) => (offer._id === data._id ? data : offer)));
@@ -146,7 +172,14 @@ export default function ManageOffers() {
         const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/deleteOffer/${id}`, { method: 'DELETE', credentials: 'include' })
         if (!response.ok) {
           const { error } = await response.json()
-          return toast.error(error)
+          if(response.status === 403){
+            dispatch(logout())
+            router.replace('/auth/login')
+            toast.error(error)
+            return
+          }
+          toast.error(error)
+          return
         }
         setOffers(offers.filter(offer => offer._id !== id))
         toast.success('offer deleted')

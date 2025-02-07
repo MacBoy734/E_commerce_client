@@ -1,21 +1,39 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
+import { useRouter } from "next/navigation";
+import { logout } from "../../../slices/authSlice"
 import Spinner from '../../../components/Spinner'
 import toast from 'react-toastify'
 
 export default function MyOrdersPage() {
-  const { user } = useSelector((state) => state.auth)
+  const { user, isAuthenticated, status } = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
+  const router = useRouter()
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    if (status !== "loading" && !isAuthenticated ) {
+      toast.error('you need to be logged in!')
+      router.push("/auth/login")
+    }
+  }, [user, status, router])
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/${user._id}/orders`, { credentials: 'include' })
         if (!res.ok) {
-          const { error } = await res.json()
-          return console.error(error)
+          const { error } = await response.json()
+          if(res.status === 403){
+            dispatch(logout())
+            router.replace('/auth/login')
+            toast.error(error)
+            return
+          }
+          toast.error(error)
+          return
         }
         const data = await res.json()
         setOrders(data)

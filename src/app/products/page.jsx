@@ -1,19 +1,21 @@
 "use client";
 import { useEffect, useState } from "react";
 import { addToCart } from "../../slices/cartSlice"
+import { useDispatch } from "react-redux"
 import Link from "next/link";
-import { useDispatch } from "react-redux";
 import Spinner from '../../components/Spinner'
 
 const ProductsPage = () => {
-  const [isLoading, setIsLoading] = useState(true); // Default to true to show "Loading..." initially
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [products, setProducts] = useState([]);
   const dispatch = useDispatch()
 
+
+
   useEffect(() => {
     const fetchProducts = async () => {
-      setIsLoading(true); // Start loading
+      setIsLoading(true);
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products`);
         if (!response.ok) {
@@ -22,9 +24,8 @@ const ProductsPage = () => {
           return;
         }
         const data = await response.json();
-        setProducts(data); // Update products state
+        setProducts(data);
       } catch (err) {
-        console.error("Error fetching products:", err);
         setError("Failed to load products");
       } finally {
         setIsLoading(false); // Stop loading
@@ -53,7 +54,7 @@ const ProductsPage = () => {
         <h2 className="text-3xl font-semibold text-center">All Products</h2>
         {isLoading ? (
           <div>
-            <Spinner loading={isLoading} message="Loading Products..." color="black"/>
+            <Spinner loading={isLoading} message="Loading Products..." color="black" />
           </div>
         ) : error ? (
           <p className="text-center text-xl text-red-500">{error}</p>
@@ -86,7 +87,7 @@ const ProductsPage = () => {
                 <button
                   className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg"
                   onClick={(e) => {
-                    e.preventDefault(); 
+                    e.preventDefault();
                     handleAddToCart(
                       product._id,
                       product.name,

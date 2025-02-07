@@ -128,7 +128,7 @@ export default function Navbar() {
           <div>
             <Link href="/cart" className="flex items-center space-x-1">
               <GiShoppingCart className="size-6" />
-              <h4 className="text-md">Cart <sup className={`text-red-600 text-lg font-normal ${!cartItems?.length && 'hidden'}`}>{cartItems?.length || 0}</sup></h4>
+              <h4 className="text-md">Cart <sup className={`text-red-600 text-lg font-normal`}>{cartItems?.length || 0}</sup></h4>
             </Link>
           </div>
         </div>
@@ -175,7 +175,7 @@ export default function Navbar() {
             {isAuthenticated ? (
               <ul className="py-2">
                 <li className="px-4 py-2"> <Link href="/users/profile" onClick={() => setMenuOpen(false)}>Profile</Link></li>
-                <li className="px-4 py-2"><Link href="/users/orders" onClick={() => setMenuOpen(false)}>Orders</Link></li>
+                <li className="px-4 py-2"><Link href="/users/orders" onClick={() => setMenuOpen(false)} >Orders</Link></li>
                 {
                   user.isAdmin && (
                     <li className="px-4 py-2"><Link href="/admin">dashboard</Link></li>
