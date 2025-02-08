@@ -3,10 +3,14 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { register } from '../../../slices/authSlice'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation' 
+import {toast} from 'react-toastify'
+import { useRouter } from 'next/navigation'
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
-const Login = () => {
-  const { isAuthenticated, status} = useSelector((state) => state.auth)
+
+const Register = () => {
+  const { isAuthenticated, status } = useSelector((state) => state.auth)
   const dispatch = useDispatch()
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
@@ -22,24 +26,29 @@ const Login = () => {
     setIsClient(true)
   }, [])
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!username || !password || !email || !phone) return toast.error('Please enter all details!')
     setIsSending(true)
     const credentials = { username, password, email, phone }
-    dispatch(register(credentials))
-      .catch(error => toast.error(error.message))
-      .finally(() => setIsSending(false))
+    try {
+      await dispatch(register(credentials)).unwrap() 
+    } catch (error) {
+      toast.error(error.message)  
+    } finally {
+      setIsSending(false)
+    }
   }
 
-  
+
   useEffect(() => {
     if (status === 'succeeded' && isAuthenticated) {
       router.push('/products')
     }
   }, [status, isAuthenticated])
 
-  
+
+
   if (!isClient) return null
 
   return (
@@ -78,19 +87,24 @@ const Login = () => {
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 mb-2" htmlFor="phone">Phone number</label>
-          <input
-            type="text"
-            id="username"
-            placeholder='phone number'
+          <PhoneInput
+            country={'ke'}
             value={phone}
-            className="w-full p-2 rounded bg-[rgba(3,160,181,0.41)] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            onlyCountries={['ke']}
+            id="phone"
             required
-            name='phone'
-            onChange={e => setPhone(e.target.value)}
-            minLength={5}
-            maxLength={15}
+            isValid={(value, country) => value.startsWith(country.dialCode)}
+            onChange={(value) => setPhone(value)} 
+            inputStyle={{
+              width: '100%',
+              padding: '20px 10px 20px 50px',
+              borderRadius: '5px',
+              border: '1px solid #ccc',
+              color: 'black'
+            }}
           />
         </div>
+
 
         <div className="mb-4">
           <label className="block text-gray-700 mb-2" htmlFor="password">Password</label>
@@ -123,4 +137,4 @@ const Login = () => {
   )
 }
 
-export default Login
+export default Register

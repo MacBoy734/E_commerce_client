@@ -26,9 +26,8 @@ const Login = () => {
     if (!username || !password) return toast.error('Please enter all details!')
     setIsSending(true)
     const credentials = { username, password }
-
     try {
-      dispatch(login(credentials)) 
+      await dispatch(login(credentials)).unwrap() 
     } catch (error) {
       toast.error(error.message)
     } finally {
@@ -92,7 +91,7 @@ const Login = () => {
         <button
           disabled={sending}
           type="submit"
-          className={`w-full bg-teal-500 text-white p-2 mt-3 rounded hover:bg-teal-600 transition ${sending ? 'opacity-50' : ''}`}
+          className={`w-full bg-teal-500 text-white p-2 mt-3 rounded hover:bg-teal-600 transition ${sending && 'opacity-50'}`}
         >
           {sending ? 'Logging in...' : 'Login'}
         </button>

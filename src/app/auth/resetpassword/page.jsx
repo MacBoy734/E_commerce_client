@@ -42,7 +42,8 @@ const ResetPassword = () => {
 
             if (!response.ok) {
                 const {error} = await response.json()
-                return toast.error(error)
+                toast.error(error)
+                return
             }
 
             toast.success("password changed succesfully")

@@ -70,7 +70,7 @@ export default function Home() {
     <div>
       {/* Hero Section */}
       <section className="bg-blue-600 text-white text-center py-12">
-        <h1 className="text-4xl font-bold">Welcome to Our Store</h1>
+        <h1 className="text-4xl font-bold">Welcome To Our Store</h1>
         <p className="mt-4 text-xl">Amazing offers and products await you</p>
         <Link href="/products" className="mt-6 inline-block bg-yellow-500 text-black py-2 px-6 rounded-lg">
           Shop Now

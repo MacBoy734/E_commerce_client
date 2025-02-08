@@ -1,8 +1,35 @@
+"use client"
+import { useState } from 'react';
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
 import { FiMail } from 'react-icons/fi';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
 
 const Footer = () => {
+  const[email, setEmail] = useState('')
+  const [sending, setIsSending] = useState(false)
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if(!email)return
+    try{
+      setIsSending(true)
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/newsletter`, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      })
+      if(!res.ok){
+        const {error} = await res.json()
+        toast.error(error)
+        return
+      }
+      toast.success('subscribed successfully')
+    }catch(error){
+      toast.error(error.message)
+    }finally{
+      setIsSending(false)
+    }
+  }
   return (
     <footer className="bg-gray-800 text-white py-8 mt-16">
       <div className="container mx-auto px-6">
@@ -19,10 +46,10 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold text-lg mb-4">Usefull Links</h4>
             <ul>
-              <li><Link href="/" className="hover:text-blue-400">Home</Link></li>
               <li><Link href="/auth/login" className="hover:text-blue-400">Login</Link></li>
               <li><Link href="/auth/register" className="hover:text-blue-400">Register</Link></li>
               <li><Link href="/cart" className="hover:text-blue-400">Cart</Link></li>
+              <li><Link href="/help/FAQS" className="hover:text-blue-400">FAQS</Link></li>
               <li><Link href="/help/contactsupport" className="hover:text-blue-400">Help</Link></li>
             </ul>
           </div>
@@ -39,13 +66,15 @@ const Footer = () => {
 
           <div>
             <h4 className="font-semibold text-lg mb-4">Newsletter</h4>
-            <form className="flex flex-col sm:flex-row items-center">
+            <form className="flex flex-col sm:flex-row items-center" onSubmit={handleSubmit}>
               <input
                 type="email"
                 placeholder="Your Email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
                 className="px-4 py-2 text-gray-800 rounded-lg w-full sm:w-56 mb-4 sm:mb-0"
               />
-              <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg sm:ml-4 hover:bg-blue-700">
+              <button type="submit" className={`bg-blue-600 text-white px-6 py-2 rounded-lg sm:ml-4 hover:bg-blue-700 ${sending && 'opacity-50'}`} disabled={sending}>
                 <FiMail size={20} />
               </button>
             </form>
