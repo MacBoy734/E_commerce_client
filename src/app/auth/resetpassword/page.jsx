@@ -1,10 +1,11 @@
 "use client"
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'react-toastify'
 
 const ResetPassword = () => {
     const router = useRouter()
+    const searchParams = useSearchParams();
     const [sending, setSending] = useState(false)
     const [password, setPassword] = useState('')
     const [password1, setPassword1] = useState('')
@@ -12,8 +13,8 @@ const ResetPassword = () => {
 
     // Get token from query parameters
     useEffect(() => {
-        const { token } = router.query
-        setToken(token)
+        const query = searchParams.get("token") || ""
+        setToken(query)
     }, [router.query])
 
     const handleSubmit = async (e) => {
