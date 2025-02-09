@@ -1,9 +1,9 @@
 "use client"
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'react-toastify'
 
-const ResetPassword = () => {
+const ResetPasswordContent = () => {
     const router = useRouter()
     const searchParams = useSearchParams();
     const [sending, setSending] = useState(false)
@@ -106,4 +106,10 @@ const ResetPassword = () => {
     )
 }
 
-export default ResetPassword
+export default function ResetPassword() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center min-h-screen">Loading..</div>}>
+            <ResetPasswordContent />
+        </Suspense>
+    );
+}

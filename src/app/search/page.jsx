@@ -1,9 +1,8 @@
 "use client";
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { toast } from "react-toastify";
 import { addToCart } from "../../slices/cartSlice"
-import { Suspense } from "react"
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { PulseLoader } from 'react-spinners'
