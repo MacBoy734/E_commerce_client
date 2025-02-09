@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Spinner from '../components/Spinner';
 import { addToCart } from "../slices/cartSlice"
 import { useDispatch } from "react-redux";
+import { toast } from 'react-toastify';
 
 
 export default function Home() {
