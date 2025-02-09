@@ -19,6 +19,14 @@ export default {
         2: '2',
         5: '5', 
       },
+      fontFamily: {
+        lato: ['Lato', 'sans-serif'],
+        merriweather: ['Merriweather', 'serif'],
+        montserrat: ['Montserrat', 'sans-serif'],
+        poppins: ['Poppins', 'sans-serif'],
+        roboto: ['Roboto', 'sans-serif'],
+        sniglet: ['Sniglet', 'sans-serif']
+      }
     },
   },
   plugins: [],

@@ -83,38 +83,31 @@ const ManageUsers = () => {
       />
 
       {/* User Table */}
-      <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border border-gray-300 p-2">ID</th>
-            <th className="border border-gray-300 p-2">Name</th>
-            <th className="border border-gray-300 p-2">Email</th>
-            <th className="border border-gray-300 p-2">Role</th>
-            <th className="border border-gray-300 p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredUsers.map((user) => (
-            <tr key={user._id}>
-              <td className="border border-gray-300 p-2 text-center">{user._id}</td>
-              <td className="border border-gray-300 p-2">{user.username}</td>
-              <td className="border border-gray-300 p-2">{user.email}</td>
-              <td className="border border-gray-300 p-2">{user.isAdmin ? 'admin' : 'customer'}</td>
-              <td className="border border-gray-300 p-2 text-center space-x-2">
-                <button
-                  className="px-2 py-1 bg-blue-500 text-white rounded"
-                  onClick={() => {
-                    setCurrentEditUser(user);
-                    setShowEditModal(true);
-                  }}
-                >
-                  Edit
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-6">
+        {filteredUsers.map((user) => (
+          <div key={user._id} className="p-6 bg-white shadow-md rounded-xl border">
+            <p className="text-lg font-semibold">UserID: {user._id}</p>
+            <p className="text-md text-gray-600">Name: {user.username}</p>
+            <p className="text-md text-gray-600">Email: {user.email}</p>
+            <p className="text-md text-gray-600">Phone: {user.phone}</p>
+            <p className="text-md text-gray-600">Role: {user.isAdmin ? 'admin' : 'customer'}</p>
+            <p className="text-md text-gray-600">Created At: {new Date(user.createdAt).toLocaleString()}</p>
+
+            <div className="mt-4 flex space-x-2 justify-start">
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                onClick={() => {
+                  setCurrentEditUser(user);
+                  setShowEditModal(true);
+                }}
+              >
+                Edit
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
 
       {/* Add User Button */}
       <button

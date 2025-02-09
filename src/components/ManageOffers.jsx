@@ -30,7 +30,7 @@ export default function ManageOffers() {
         const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/offers`, { credentials: 'include' })
         if (!response.ok) {
           const { error } = await response.json()
-          if(response.status === 403){
+          if (response.status === 403) {
             dispatch(logout())
             router.replace('/auth/login')
             toast.error(error)
@@ -76,7 +76,7 @@ export default function ManageOffers() {
       })
       if (!response.ok) {
         const { error } = await response.json()
-        if(response.status === 403){
+        if (response.status === 403) {
           dispatch(logout())
           router.replace('/auth/login')
           toast.error(error)
@@ -110,7 +110,7 @@ export default function ManageOffers() {
   };
 
   // Save edited offer
-  const handleSaveEdit = async() => {
+  const handleSaveEdit = async () => {
     if (!discountPercentage || !offerTitle || !startDate || !endDate) {
       return toast.error('fill in all fields!')
     }
@@ -122,7 +122,7 @@ export default function ManageOffers() {
         startDate,
         endDate
       }
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/editOffer/${currentId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/editoffer/${currentId}`, {
         method: 'PATCH',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(offer),
@@ -130,7 +130,7 @@ export default function ManageOffers() {
       })
       if (!response.ok) {
         const { error } = await response.json()
-        if(response.status === 403){
+        if (response.status === 403) {
           dispatch(logout())
           router.replace('/auth/login')
           toast.error(error)
@@ -146,6 +146,7 @@ export default function ManageOffers() {
       setEndDate('')
       setDiscountPercentage('')
       setEditOffer(null);
+      setCurrentId('')
       toast.success('offer updated')
       setIsEditModalOpen(false);
     } catch (error) {
@@ -172,7 +173,7 @@ export default function ManageOffers() {
         const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/deleteOffer/${id}`, { method: 'DELETE', credentials: 'include' })
         if (!response.ok) {
           const { error } = await response.json()
-          if(response.status === 403){
+          if (response.status === 403) {
             dispatch(logout())
             router.replace('/auth/login')
             toast.error(error)
@@ -219,47 +220,57 @@ export default function ManageOffers() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-300 rounded-md">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="p-3 text-left">Title</th>
-                  <th className="p-3 text-left">Discount</th>
-                  <th className="p-3 text-left">End Date</th>
-                  <th className="p-3 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredOffers.length > 0 ? (
-                  filteredOffers.map((offer) => (
-                    <tr key={offer._id} className="border-b">
-                      <td className="p-3">{offer.title}</td>
-                      <td className="p-3">{offer.discountPercentage}</td>
-                      <td className="p-3">{offer.endDate}</td>
-                      <td className="p-3 flex space-x-2">
-                        <button
-                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-                          onClick={() => handleEditOffer(offer)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                          onClick={() => handleDeleteOffer(offer._id)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td className="p-3 text-center text-gray-500" colSpan="4">
-                      No offers found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-6">
+              {filteredOffers.length > 0 ? (
+                filteredOffers.map((offer) => (
+                  <div key={offer._id} className="p-6 bg-white shadow-md rounded-xl border">
+                    <p className="text-lg font-semibold">Title: {offer.title}</p>
+                    <p className="text-md text-gray-600">Offer ID: {offer._id}</p>
+                    <p className="text-md text-gray-600">Created At: {new Date(offer.createdAt).toLocaleDateString()}</p>
+                    <p className="text-md text-gray-600">Discount: {offer.discountPercentage}%</p>
+                    <p className="text-md text-gray-600">Start Date: {new Date(offer.startDate).toLocaleDateString()}</p>
+                    <p className="text-md text-gray-600">End Date: {new Date(offer.endDate).toLocaleDateString()}</p>
+                    <p className="text-md text-gray-600">active: {offer.isActive ? 'true' : 'false'}</p>
+
+                    <div className="mt-3">
+                        <p className="text-md text-gray-600">applicable Products:</p>
+                        {
+                          offer.applicableProducts.length > 0 ? (
+
+                        <ul className="list-disc list-inside text-gray-700">
+                          {offer.applicableProducts.map((item, index) => (
+                            <li key={index} className="ml-4">{item.name}</li>
+                          ))}
+                        </ul>
+                          ) : (
+                            <p className="ml-4">No products</p>
+                          )
+                        }
+                      </div>
+
+                    <div className="mt-4 flex space-x-2 justify-start">
+                      <button
+                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                        onClick={() => handleEditOffer(offer)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                        onClick={() => handleDeleteOffer(offer._id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full p-6 text-center text-gray-500">
+                  No offers found.
+                </div>
+              )}
+            </div>
+
           </div>
         )
       }

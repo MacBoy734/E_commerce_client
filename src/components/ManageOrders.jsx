@@ -3,7 +3,8 @@ import { React, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux"
 import { logout } from "../slices/authSlice"
-import { HashLoader, PulseLoader } from "react-spinners"
+import { PulseLoader } from "react-spinners"
+import { toast } from "react-toastify";
 
 
 const ManageOrders = () => {
@@ -11,6 +12,12 @@ const ManageOrders = () => {
   const router = useRouter()
   const [orders, setOrders] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [totalAmount, setTotalAmount] = useState('')
+  const [paymentStatus, setPaymentStatus] = useState('')
+  const [orderStatus, setOrderStatus] = useState('')
+  const [currentId, setCurrentId] = useState('')
+  const [isSavingOrder, setIsSavingOrder] = useState(false)
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -39,9 +46,89 @@ const ManageOrders = () => {
     fetchOrders();
   }, []);
 
-  const handleDeleteOrder = () => {
-    console.log('deleting...')
+
+  const handleCloseModal = () => {
+    setTotalAmount('')
+    setPaymentStatus('')
+    setOrderStatus('')
+    setCurrentId('')
+    setIsModalOpen(false)
   }
+
+  const handleEditOrder = (order) => {
+    setOrderStatus(order.orderStatus)
+    setPaymentStatus(order.paymentStatus)
+    setCurrentId(order._id)
+    setTotalAmount(order.totalAmount);
+    setIsModalOpen(true);
+  }
+
+  // Save edited order
+  const handleSaveOrder = async () => {
+    if (!paymentStatus || !orderStatus || !totalAmount || !currentId) {
+      toast.error('fill in all fields!')
+      return
+    }
+    try {
+      setIsSavingOrder(true)
+      const order = {
+        paymentStatus,
+        orderStatus
+      }
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/editorder/${currentId}`, {
+        method: 'PATCH',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(order),
+        credentials: 'include',
+      })
+      if (!response.ok) {
+        const { error } = await response.json()
+        if (response.status === 403) {
+          dispatch(logout())
+          router.replace('/auth/login')
+          toast.error(error)
+          return
+        }
+        toast.error(error)
+        return
+      }
+      const data = await response.json()
+      setOrders(orders.map((order) => (order._id === data._id ? data : order)));
+      setTotalAmount('')
+      setPaymentStatus('')
+      setOrderStatus('')
+      setCurrentId('')
+      toast.success('offer updated')
+      setIsModalOpen(false);
+    } catch (error) {
+      toast.error(error.message)
+    } finally {
+      setIsSavingOrder(false)
+    }
+  };
+
+  const handleDeleteOrder = async (id) => {
+    if (confirm('delete this order?')) {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/products/deleteorder/${id}`, { method: 'DELETE', credentials: 'include' })
+        if (!response.ok) {
+          const { error } = await response.json()
+          if (response.status === 403) {
+            dispatch(logout())
+            router.replace('/auth/login')
+            toast.error(error)
+            return
+          }
+          toast.error(error)
+          return
+        }
+        setOrders(orders.filter(order => order._id !== id))
+        toast.success('order deleted')
+      } catch (error) {
+        toast.error(error.message)
+      }
+    }
+  };
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen text-black">
@@ -55,51 +142,105 @@ const ManageOrders = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-300 rounded-md">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="p-3 text-left">Amount</th>
-                  <th className="p-3 text-left">Date</th>
-                  <th className="p-3 text-left">Payment Status</th>
-                  <th className="p-3 text-left">Order Status</th>
-                  <th className="p-3 text-left">actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.length > 0 ? (
-                  orders.map((order) => (
-                    <tr key={order.totalAmount} className="border-b">
-                      <td className="p-3">${order.totalAmount}</td>
-                      <td className="p-3">{new Date(order.createdAt).toLocaleString()}</td>
-                      <td className="p-3">{order.paymentStatus}</td>
-                      <td className="p-3">{order.orderStatus}</td>
-                      <td className="p-3 flex space-x-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-auto-fit gap-6">
+              {orders.length > 0 ? (
+                   orders.map((order) => (
+                    <div key={order._id} className="p-6 bg-white shadow-md rounded-xl border w-full max-w-2xl mx-auto">
+                      <p className="text-xl font-semibold">User: {order.user.username}</p>
+                      <p className="text-md">Total: ${order.totalAmount}</p>
+                      <p className="text-md">User Id: {order.user._id}</p>
+                      <p className="text-md text-gray-600">Order Id: {order._id}</p>
+                      <p className="text-md text-gray-600">Shipping Address: {order.shippingAddress}</p>
+                      <p className="text-md text-gray-600">City Of Delivery: {order.city}</p>
+                      <p className="text-md text-gray-600">Payment Method: {order.paymentMethod}</p>
+                      <p className="text-md text-gray-600">Postal Code: {order.postalCode}</p>
+                      <p className="text-md text-gray-600">Created At: {new Date(order.createdAt).toLocaleString()}</p>
+                      <p className="text-md">
+                        Payment Status: <span className="font-medium">{order.paymentStatus}</span>
+                      </p>
+                      <p className="text-md">
+                        Order Status: <span className="font-medium">{order.orderStatus}</span>
+                      </p>
+              
+                      {/* Display Ordered Items */}
+                      <div className="mt-4">
+                        <p className="text-lg font-semibold">Items Ordered:</p>
+                        <ul className="list-disc list-inside text-gray-700">
+                          {order.items.map((item, index) => (
+                            <li key={index} className="ml-4">{item.name} - {item.quantity}</li>
+                          ))}
+                        </ul>
+                      </div>
+              
+                      <div className="flex justify-between mt-4">
                         <button
-                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                          onClick={() => handleEditOrder(order)}
                         >
                           Edit
                         </button>
                         <button
-                          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
                           onClick={() => handleDeleteOrder(order._id)}
                         >
                           Delete
                         </button>
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
                   ))
-                ) : (
-                  <tr>
-                    <td className="p-3 text-center text-gray-500" colSpan="4">
-                      No orders found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+              ) : (
+                <p className="text-center text-gray-500 col-span-full">No orders found.</p>
+              )}
+            </div>
+
           </div>
         )
       }
+
+      {/* EDIT OFFER MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-lg font-semibold mb-2">Edit Offer</h3>
+            <div className="space-y-3">
+              <label htmlFor="totalAmount" className="mt-3 text-lg">total Amount</label>
+              <input type="text" required id="totalAmount" name="totalAmount" placeholder="Total amount" className="w-full p-2 border border-gray-300 rounded opacity-50" disabled value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)} />
+              <label htmlFor="paymentStatus" className="mt-3 text-lg">Payment Status</label>
+              <select
+                className="w-full p-2 border rounded mb-2"
+                value={paymentStatus}
+                id="paymentStatus"
+                onChange={(e) => {
+                  setPaymentStatus(e.target.value)
+                }
+                }
+              >
+                <option value="Pending">Pending</option>
+                <option value="Paid">Paid</option>
+                <option value="Failed">Failed</option>
+              </select>
+              <label htmlFor="orderStatus" className="mt-3 text-lg">Order Status</label>
+              <select
+                className="w-full p-2 border rounded mb-2"
+                value={orderStatus}
+                id="orderStatus"
+                onChange={(e) => {
+                  setOrderStatus(e.target.value)
+                }
+                }
+              >
+                <option value="Pending">Pending</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Delivered">Delivered</option>
+              </select>
+            </div>
+            <div className="flex justify-end mt-4 space-x-2">
+              <button className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500" onClick={handleCloseModal}>Cancel</button>
+              <button className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ${isSavingOrder && 'opacity-50'}`} onClick={handleSaveOrder} disabled={isSavingOrder}>{isSavingOrder ? 'saving order...' : 'Save Order'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

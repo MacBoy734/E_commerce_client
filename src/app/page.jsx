@@ -5,6 +5,7 @@ import Spinner from '../components/Spinner';
 import { addToCart } from "../slices/cartSlice"
 import { useDispatch } from "react-redux";
 
+
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');

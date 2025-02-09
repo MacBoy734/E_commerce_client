@@ -8,14 +8,15 @@ import ManageProducts from '../../components/ManageProducts'
 import ManageUsers from '../../components/ManageUsers'
 import ManageOffers from "../../components/ManageOffers"
 import ManageOrders from '../../components/ManageOrders'
-import { IoMenu, IoClose } from "react-icons/io5" // Icons for toggle button
+import NewsletterForm from '../../components/sendNewsletter'
+import { IoMenu, IoClose } from "react-icons/io5" 
 
 const DashboardPage = () => {
   const dispatch = useDispatch()
   const { user, status } = useSelector((state) => state.auth)
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("manageProducts")
-  const [isSidebarOpen, setSidebarOpen] = useState(false) // Hidden by default on mobile
+  const [isSidebarOpen, setSidebarOpen] = useState(false) 
 
   useEffect(() => {
     if (status !== "loading" && (!user || !user.isAdmin)) {
@@ -34,6 +35,8 @@ const DashboardPage = () => {
         return <ManageOrders />
       case "manageOffers":
         return <ManageOffers />
+      case "otherSettings": 
+        return <NewsletterForm />
       default:
         return <p>Select a section from the sidebar.</p>
     }
@@ -42,7 +45,7 @@ const DashboardPage = () => {
   return (
     <div className="flex min-h-screen relative">
       <aside
-        className={`bg-gray-800 text-white p-4 sm:space-y-4 transition-transform duration-300 ease-in-out sm:static sm:w-1/4 sm:translate-x-0 ${
+        className={`bg-gray-800 text-white p-4 sm:space-y-4 transition-transform duration-300 ease-in-out sm:static sm:w-[15%] sm:translate-x-0 ${
           isSidebarOpen ? "fixed top-0 left-0 h-screen w-3/4 z-50 translate-x-0" : "fixed -translate-x-full"
         }`}
       >
@@ -98,6 +101,17 @@ const DashboardPage = () => {
             }}
           >
             Manage Offers
+          </button>
+          <button
+            className={`block w-full text-left px-4 py-2 rounded ${
+              activeTab === "otherSettings" ? "bg-gray-600" : "hover:bg-gray-700"
+            }`}
+            onClick={() => {
+              setActiveTab("otherSettings")
+              setSidebarOpen(false)
+            }}
+          >
+            Other Settings
           </button>
         </nav>
       </aside>

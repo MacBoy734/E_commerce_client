@@ -196,39 +196,46 @@ const ManageProducts = () => {
                             <p className="mt-4 text-lg font-medium text-black">Loading Products</p>
                         </div>
                     ) : (
-                        <table className="w-full border-collapse border border-gray-300">
-                            <thead>
-                                <tr className="bg-gray-200">
-                                    <th className="border border-gray-300 px-4 py-2">Name</th>
-                                    <th className="border border-gray-300 px-4 py-2">Price</th>
-                                    <th className="border border-gray-300 px-4 py-2">Stock</th>
-                                    <th className="border border-gray-300 px-4 py-2">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {products.map((product) => (
-                                    <tr key={product._id}>
-                                        <td className="border border-gray-300 px-4 py-2">{product.name}</td>
-                                        <td className="border border-gray-300 px-4 py-2">{product.price}</td>
-                                        <td className="border border-gray-300 px-4 py-2">{product.quantity}</td>
-                                        <td className="border border-gray-300 px-4 py-2 grid grid-cols-[repeat(auto-fit,minmax(50px,1fr))] gap-2">
-                                            <button
-                                                onClick={() => handleEdit(product._id)}
-                                                className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 mr-2"
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteProduct(product._id)}
-                                                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-auto-fit gap-6">
+                            {products.map((product) => (
+                                <div key={product._id} className="p-6 bg-white shadow-md rounded-xl border">
+                                    <p className="text-lg font-semibold">{product.name}</p>
+                                    <p className="text-md text-gray-600">product Id: {product._id}</p>
+                                    <p className="text-md text-gray-600">Price: ${product.price}</p>
+                                    <p className="text-md text-gray-600">created At: ${product.createdAt}</p>
+                                    <p className="text-md text-gray-600">Category: {product.category}</p>
+                                    <p className="text-md text-gray-600">Quantity: {product.quantity}</p>
+                                    <p className="text-md text-gray-600">is Featured: {product.isFeatured ? 'true' : 'false'}</p>
+
+                                    <div className="mt-4">
+                                        <p className="text-lg">product Offers:</p>
+                                        {
+                                            product.offers ? (
+                                                <p className="ml-4">{product.offers.title} - {product.offers.discountPercentage}%</p>
+                                            ) : (
+                                                <p className="ml-4">No offers</p>
+                                            )
+                                        }
+                                    </div>
+
+                                    <div className="mt-4 flex space-x-2 justify-start">
+                                        <button
+                                            onClick={() => handleEdit(product._id)}
+                                            className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteProduct(product._id)}
+                                            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
                     )
                 }
             </div>
